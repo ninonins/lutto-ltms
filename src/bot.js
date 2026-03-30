@@ -26,6 +26,12 @@ function formatViolationsReport(violations) {
   return lines.join("\n");
 }
 
+function sessionPersistenceMessage(config) {
+  return config.persistentSession
+    ? "LTMS session kept alive. Use /recheck to scrape Violations again or /cancel to clear it."
+    : "LTMS session closed after this check because PERSISTENT_SESSION is off.";
+}
+
 export function createBot(config = loadConfig()) {
   const bot = new Telegraf(config.telegramBotToken);
   const ltmsClient = new LtmsClient(config);
@@ -155,7 +161,9 @@ export function createBot(config = loadConfig()) {
       [
         "LTMS captcha relay bot is ready.",
         "Use /check to start a login attempt.",
-        "Use /recheck to scrape Violations again if the LTMS session is still logged in.",
+        config.persistentSession
+          ? "Use /recheck to scrape Violations again if the LTMS session is still logged in."
+          : "PERSISTENT_SESSION is off, so each /check ends by closing the LTMS session.",
         "Use /retry to fetch a fresh captcha during an active run.",
         "Use /cancel to abort the current run.",
       ].join("\n"),
@@ -170,7 +178,11 @@ export function createBot(config = loadConfig()) {
     }
 
     if (!session.isLoggedIn()) {
-      await ctx.reply("No logged-in LTMS session is available. Use /check first.");
+      await ctx.reply(
+        config.persistentSession
+          ? "No logged-in LTMS session is available. Use /check first."
+          : "PERSISTENT_SESSION is off, so /recheck is unavailable. Use /check instead.",
+      );
       return;
     }
 
@@ -235,7 +247,10 @@ export function createBot(config = loadConfig()) {
       }
 
       session.complete({ violations: result.violations });
-      await ctx.reply(formatViolationsReport(result.violations));
+      await ctx.reply(`${formatViolationsReport(result.violations)}\n\n${sessionPersistenceMessage(config)}`);
+      if (!config.persistentSession) {
+        await cleanupSession();
+      }
     } catch (error) {
       session.fail(error.message);
       session.transition("awaiting_captcha");

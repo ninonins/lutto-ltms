@@ -13,10 +13,12 @@ test("loadConfig returns normalized config", () => {
   const config = loadConfig({
     ...baseEnv,
     HEADLESS: "false",
+    PERSISTENT_SESSION: "false",
     PLAYWRIGHT_TIMEOUT_MS: "45000",
   });
 
   assert.equal(config.headless, false);
+  assert.equal(config.persistentSession, false);
   assert.equal(config.playwrightTimeoutMs, 45_000);
   assert.equal(config.telegramAllowedChatId, "123");
 });

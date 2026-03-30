@@ -51,6 +51,7 @@ export function loadConfig(env = process.env) {
     ltmsPassword: env.LTMS_PASSWORD,
     nodeEnv: env.NODE_ENV || "production",
     headless: toBoolean(env.HEADLESS, true),
+    persistentSession: toBoolean(env.PERSISTENT_SESSION, true),
     playwrightTimeoutMs: toInteger(env.PLAYWRIGHT_TIMEOUT_MS, 30_000),
     ltmsPortalUrl: "https://portal.lto.gov.ph/",
   };
