@@ -1,0 +1,19 @@
+{
+  "name": "ltms-captcha-relay-bot",
+  "version": "0.1.0",
+  "description": "Telegram-assisted LTMS login checker for EC2",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "playwright": "^1.53.1",
+    "telegraf": "^4.16.3"
+  }
+}
